@@ -5,7 +5,7 @@ Created on Sat Jul 24 11:02:23 2021
 
 @author: easonshi
 
-from https://louyu.cc/articles/machine-learning/2019/10/?p=2087/ 
+from 机器学习算法笔记(三十三)：SVM 使用多项式特征与核函数 https://louyu.cc/articles/machine-learning/2019/10/?p=2087/
 """
 
 from sklearn.svm import SVC  # 这里直接导入SVC，而不是LinearSVC
@@ -57,7 +57,7 @@ plt.show()
 
 
 # %%
-
+# 多项式，相较于上面的 LinearSVMC 理论上应该差不多；但实际上效果似乎差些
 
 def PolynomialKernelSVC(degree, C=1.0):
     return Pipeline([
@@ -76,7 +76,10 @@ plt.show()
 
 
 # %%
-# 高斯核函数
+"""
+高斯核函数/RDF
+理论参见原文；不同 gamma 控制了曲线的你和能力
+"""
 
 def RBFKernelSVC(gamma):
     return Pipeline([

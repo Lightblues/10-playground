@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-
+"""
+爬取外交部新闻发言记录：首页 > 发言人表态 > 例行记者会
+"""
 from tqdm import tqdm
 import requests
 import json
@@ -41,6 +43,7 @@ for i in tqdm(range(25, 7, -1)):
 # for i in [25]:
     contents.extend(get_onelist(listpage.format(i)))
 
+# 保存为 JSON 格式
 with open("../data/Waijiaobu/wjb_2020.txt", "w", encoding="utf-8") as f:
     for c in contents:
         f.write(json.dumps(c, ensure_ascii=False) + "\n")
