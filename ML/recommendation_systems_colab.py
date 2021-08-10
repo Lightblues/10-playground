@@ -81,7 +81,7 @@ print("Done installing Altair.")
 
 # Install spreadsheets and import authentication module.
 USER_RATINGS = False
-!pip install --upgrade -q gspread
+# !pip install --upgrade -q gspread
 from google.colab import auth
 import gspread
 from oauth2client.client import GoogleCredentials
@@ -95,8 +95,8 @@ print("Downloading movielens data...")
 from urllib.request import urlretrieve
 import zipfile
 
-urlretrieve("http://files.grouplens.org/datasets/movielens/ml-100k.zip", "movielens.zip")
-zip_ref = zipfile.ZipFile('movielens.zip', "r")
+urlretrieve("http://files.grouplens.org/datasets/movielens/ml-100k.zip", "../data/movielens.zip")
+zip_ref = zipfile.ZipFile('../data/movielens.zip', "r")
 zip_ref.extractall()
 print("Done. Dataset contains:")
 print(zip_ref.read('ml-100k/u.info'))
@@ -168,6 +168,7 @@ def split_dataframe(df, holdout_fraction=0.1):
     train: dataframe for training
     test: dataframe for testing
   """
+  # 划分数据集
   test = df.sample(frac=holdout_fraction, replace=False)
   train = df[~df.index.isin(test.index)]
   return train, test
@@ -283,6 +284,7 @@ alt.hconcat(
     genre_chart,
     data=movies_ratings)
 
+# %%
 """# II. Preliminaries
 
 Our goal is to factorize the ratings matrix $A$ into the product of a user embedding matrix $U$ and movie embedding matrix $V$, such that $A \approx UV^\top$ with
@@ -692,8 +694,10 @@ Note: by calling `model.train` again, the model will continue training starting 
 model = build_model(ratings, embedding_dim=30, init_stddev=0.5)
 model.train(num_iterations=1000, learning_rate=10.)
 
-"""The movie and user embeddings are also displayed in the right figure. When the embedding dimension is greater than 3, the embeddings are projected on the first 3 dimensions. The next section will have a more detailed look at the embeddings.
+"""The movie and user embeddings are also displayed in the right figure. When the embedding dimension is greater than 3, the embeddings are projected on the first 3 dimensions. The next section will have a more detailed look at the embeddings."""
 
+# %%
+"""
 # IV. Inspecting the Embeddings
 
 In this section, we take a closer look at the learned embeddings, by
@@ -1061,7 +1065,10 @@ tsne_movie_embeddings(reg_model)
 
 ### Conclusion
 This concludes this section on matrix factorization models. Note that while the scale of the problem is small enough to allow efficient training using SGD, many practical problems need to be trained using more specialized algorithms such as Alternating Least Squares (see [tf.contrib.factorization.WALSMatrixFactorization](https://www.tensorflow.org/api_docs/python/tf/contrib/factorization/WALSMatrixFactorization) for a TF implementation).
+"""
 
+# %%
+"""
 # VI. Softmax model
 
 In this section, we will train a simple softmax model that predicts whether a given user has rated a movie.
