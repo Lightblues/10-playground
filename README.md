@@ -4,6 +4,8 @@
 
 ## Spyder
 
+- `Selenium` 框架
+    - `Weibo-Xuyongbo` 给新闻学院一个学长写的爬虫作业 @2203
 - `WaiJiaoBu` 爬取外交部例行记者会数据 @2107
 - `fudan_dataanalysis` 爬取复旦专业 + QS大学排名 @2111
 
