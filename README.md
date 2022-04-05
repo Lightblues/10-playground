@@ -4,6 +4,9 @@
 
 ## Spyder
 
+- `01-basic-framework` 基本的 requests+lxml 爬取框架
+    - `requests` 之后用 `lxml.etree` 解析, 利用 xpath 获取内容.
+    - 适合简单网站, 少量数据的爬取; 这里的示例是 GitHub
 - `Selenium` 框架
     - `Weibo-Xuyongbo` 给新闻学院一个学长写的爬虫作业 @2203
 - `WaiJiaoBu` 爬取外交部例行记者会数据 @2107
