@@ -10,6 +10,11 @@ from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
 
+""" 根据 tag 页面爬取豆瓣列表
+输入链接: "https://book.douban.com/tag/{}?start={}"
+输出: 保存到 data/book/tag_book_list.csv
+"""
+
 from config import header_douban
 
 class DoubanTagList(object):
@@ -25,7 +30,6 @@ class DoubanTagList(object):
         """ 爬取 book_tag 的 start-end 列表
         输出: book_id, title, desc, book_url 列表"""
         url_book_tag = "https://book.douban.com/tag/{}?start={}"
-        #url='http://www.douban.com/tag/%E5%B0%8F%E8%AF%B4/book?start=0' # 小说 转义
         
         book_list = []
         for page_num in range(page_start, page_end):
@@ -68,3 +72,4 @@ for tag in tags.split():
     book_list = douban.crawel_tag_list(tag, 0, 10)
     book_all.extend(book_list)
 pd.DataFrame(book_all, columns="book_tag, title, book_id, infos, desc, book_url".split(', ')).to_csv(f'./data/book/tag_book_list.csv', index=False)
+

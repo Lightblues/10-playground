@@ -4,9 +4,13 @@
 
 ## Spyder
 
+- `douban_豆瓣` 豆瓣个人+书籍列表 @2204
+    - 比较成熟的框架了, 对于反爬策略不太强的网络应该可以借鉴
 - `01-basic-framework` 基本的 requests+lxml 爬取框架
     - `requests` 之后用 `lxml.etree` 解析, 利用 xpath 获取内容.
     - 适合简单网站, 少量数据的爬取; 这里的示例是 GitHub
+- `daily_fudan` 基于「平安复旦」API的自动化填写, 利用 GitHub Action;
+    - 还用了OCR模块进行验证码识别
 - `Selenium` 框架
     - `Weibo-Xuyongbo` 给新闻学院一个学长写的爬虫作业 @2203
 - `WaiJiaoBu` 爬取外交部例行记者会数据 @2107

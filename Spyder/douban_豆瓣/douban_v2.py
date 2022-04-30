@@ -213,9 +213,9 @@ class Douban(object):
             return 1
         
         # id, url, title, cover_link, 
-        author, subtitle, publisher, producer, origin_title, translator, publish_year, pages, price, binding, series, isbn = self.process_info_text(info_text)
+        author, subtitle, publisher, producer, origin_title, translator, publish_year, pages, price, binding, series, isbn = self.process_book_info_text(info_text)
         rate, rate_num = self.process_rating_text(rating_text)
-        info_content, info_author = self.process_related_info_with_content(content)
+        info_content, info_author = self.process_book_related_info_with_content(content)
         
         cursor = self.conn.cursor(buffered=True)
         query_insert_book = "INSERT IGNORE INTO book_full (id, url, title, cover_link, my_rate, my_rate_time, my_tags, my_comment, "\
@@ -246,7 +246,7 @@ class Douban(object):
         return True
     
     @staticmethod
-    def process_info_text(info_text):
+    def process_book_info_text(info_text):
         """ 处理豆瓣的基础信息表, 方便起见输出均为 str
         输入: 原始的文本, 例如: '作者: 张成思\n出版社: 中国人民大学出版社\n出版年: 2016-3-1\n页数: 309\n定价: CNY 80.00\n装帧: 精装\nISBN: 9787300226040'
         输出格式: author, subtitle, publisher, producer, origin_title, translator, publish_year, pages, price, binding, series, isbn, 
@@ -285,8 +285,9 @@ class Douban(object):
         return .0, 0
     
     @staticmethod
-    def process_related_info_with_content(content):
+    def process_book_related_info_with_content(content):
         """ 
+        输入: raw_content
         输出: 
         """
         soup = BeautifulSoup(content, 'html.parser')
@@ -566,8 +567,8 @@ class Douban(object):
         rate = int(my_rate)
         return star*rate
 
-    def update_movie_full_single_col(self, columnns: str, col_update:str, f):
-        """ 基于所定义的处理函数 f, 用表的若干列更新 movie_full 表的某一列
+    def update_movie_full_single_col(self, col_input: str, col_update:str, f):
+        """ 基于所定义的处理函数 f, 用表的若干 col_input 列更新表的 col_update 列
         参数: 
             f: 处理函数, 输入为 columnns 所定义的列, 输出为要更新的列的值
             columnns: f 的输入参数, 例如 `"author, subtitle, publisher"` 筛选三个列, 这三个就作为 f输入参数
@@ -576,7 +577,7 @@ class Douban(object):
         
         TODO: update_movie_full_multiple_col 支持更新多个列
         """
-        query_select = f"SELECT movie_id, {columnns} FROM movie_full;"
+        query_select = f"SELECT movie_id, {col_input} FROM movie_full;"
         cursor = self.conn.cursor(buffered=True)
         cursor.execute(query_select)
         rows = cursor.fetchall()
@@ -594,7 +595,8 @@ class Douban(object):
     
     def select_multiple_from_db(self, table_name:str, columns:str, where:str, params:tuple):
         """ 查询数据库
-        返回: 失败则返回 None
+        参数: params 用于放一些辅助信息. 例如 `self.select_one_from_db("book_raw", "*", "book_id = %s AND version = %s", (book_id, version))`
+        返回: 查询失败则返回 None
         """
         query = f"SELECT {columns} FROM {table_name} WHERE {where};"
         cursor = self.conn.cursor(buffered=True)
@@ -665,6 +667,46 @@ class Douban(object):
         print(f"[crawled] {book_id} {title}")
         return book_id, url, title, cover_link, info_text, rating_text, content, source_tag, version
     
+    def check_exists(self, table_name, query):
+        """ 检查是否存在
+        示例: self.check_exists("book_list", f"version=1 AND book_id={book_id}")
+        """
+        cursor = self.conn.cursor(buffered=True)
+        query = f"SELECT * FROM {table_name} WHERE {query};"
+        cursor.execute(query, ())
+        if not cursor.rowcount > 0: return False
+        return True
+    
+    def process_book_content(self, filter, version=1):
+        """ 处理 raw 网页文本, 提取信息入库
+        参数: filter 进行筛选 (例如进处理 version=1 的原始数据)
+        输入: book_raw 表的原始文本, 包括: book_id, url, title, cover_link, info_text, rating_text, content, source_tag, version
+        输出: 整合进 book_list 表
+            重复key处理: REPLACE
+        """
+        rows = self.select_multiple_from_db("book_raw", "book_id, url, title, cover_link, info_text, rating_text, content, source_tag, version", filter, ())
+        
+        query_insert_book = "REPLACE INTO book_list (book_id, url, title, cover_link, "\
+            "author, subtitle, publisher, producer, origin_title, translator, publish_year, pages, price, binding, series, isbn, " \
+                "rate, rate_num, info_content, info_author, version, source_tag) VALUES (%s, %s, %s, %s, " \
+                    "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
+                        "%s, %s, %s, %s, %s, %s); "
+        cursor = self.conn.cursor(buffered=True)
+        for book_id, url, title, cover_link, info_text, rating_text, content, source_tag, _version in rows:
+            if self.check_exists("book_list", f"version={version} AND book_id={book_id}"):
+                continue
+            author, subtitle, publisher, producer, origin_title, translator, publish_year, pages, price, binding, series, isbn = self.process_book_info_text(info_text)
+            rate, rate_num = self.process_rating_text(rating_text)
+            info_content, info_author = self.process_book_related_info_with_content(content)
+        
+            cursor.execute(query_insert_book, (
+                book_id, url, title, cover_link, 
+                author, subtitle, publisher, producer, origin_title, translator, publish_year, pages, price, binding, series, isbn, 
+                rate, rate_num, info_content, info_author, version, source_tag, 
+            ))
+            self.conn.commit()
+        cursor.close()
+        return 0
 
 map_book_info_ch2key = dict(zip(
     # 统一书号 
@@ -688,13 +730,19 @@ douban_crawler = Douban()
 # douban_crawler.get_movie(1304102)
 # douban_crawler.get_movie_all()
 
-# douban_crawler.to_feishu_csv_movie("data/douban_movie.csv")
+def to_csv():
+    douban_crawler.to_feishu_csv_movie("data/douban_movie.csv")
 
-"""  """
+""" 更新某一列 """
 # douban_crawler.update_movie_full_single_col("link_report", "link_report", douban_crawler.process_link_report)
 
-book_tag_list = pd.read_csv('./data/book/tag_book_list.csv', header=0)
-for tag in book_tag_list['book_tag'].unique():
-    book_ids = book_tag_list[book_tag_list['book_tag']==tag]['book_id']
-    print(f"=== crawling {tag} [{len(book_ids)}] ===")
-    douban_crawler.crawl_book_content_from_list(book_ids, source_tag=tag, version=1)
+def crawl_tag_list():
+    # "历史 心理学 哲学 社会学 传记 文化 艺术 社会 政治"
+    book_tag_list = pd.read_csv('./data/book/tag_book_list.csv', header=0)
+    for tag in book_tag_list['book_tag'].unique():
+        book_ids = book_tag_list[book_tag_list['book_tag']==tag]['book_id']
+        print(f"=== crawling {tag} [{len(book_ids)}] ===")
+        douban_crawler.crawl_book_content_from_list(book_ids, source_tag=tag, version=1)
+
+def process_book():
+    douban_crawler.process_book_content(filter="version=1", version=1)
