@@ -1,0 +1,98 @@
+'''
+Function:
+    千千音乐下载: http://music.taihe.com/
+Author:
+    Charles
+微信公众号:
+    Charles的皮卡丘
+'''
+import time
+import hashlib
+import requests
+from .base import Base
+from ..utils.misc import *
+
+
+'''千千音乐下载类'''
+class qianqian(Base):
+    def __init__(self, config, logger_handle, **kwargs):
+        super(qianqian, self).__init__(config, logger_handle, **kwargs)
+        self.source = 'qianqian'
+        self.__initialize()
+    '''歌曲搜索'''
+    def search(self, keyword):
+        self.logger_handle.info('正在%s中搜索 ——> %s...' % (self.source, keyword))
+        cfg = self.config.copy()
+        params = {
+            'sign': self.__calcSign(keyword),
+            'word': keyword,
+            'timestamp': str(int(time.time()))
+        }
+        response = self.session.get(self.search_url, headers=self.headers, params=params)
+        all_items = response.json()['data']['typeTrack']
+        songinfos = []
+        for item in all_items:
+            params = {
+                'sign': self.__calcSign(keyword),
+                'TSID': item['TSID'],
+                'timestamp': str(int(time.time())),
+                'from': 'web',
+                's_protocol': '1',
+            }
+            response = self.session.get(self.tracklink_url, headers=self.headers, params=params)
+            response_json = response.json()
+            if response_json.get('errno') != 22000: continue
+            if 'path' in response_json['data']:
+                download_url = response_json['data']['path']
+            else:
+                download_url = response_json['data']['trail_audio_info']['path']
+            if not download_url: continue
+            lyric_url, lyric = response_json['data'].get('lyric', ''), ''
+            if lyric_url:
+                response = self.session.get(lyric_url, headers=self.headers)
+                response.encoding = 'utf-8'
+                lyric = response.text
+            filesize = str(round(int(response_json['data']['size'])/1024/1024, 2)) + 'MB'
+            ext = response_json['data']['format']
+            duration = int(response_json['data']['duration'])
+            songinfo = {
+                'source': self.source,
+                'songid': str(item['id']),
+                'singers': filterBadCharacter(item['artist'][0].get('name', '-')),
+                'album': filterBadCharacter(item.get('albumTitle', '-')),
+                'songname': filterBadCharacter(item.get('title', '-')).split('–')[0].strip(),
+                'savedir': cfg['savedir'],
+                'savename': '_'.join([self.source, filterBadCharacter(item.get('title', '-')).split('–')[0].strip()]),
+                'download_url': download_url,
+                'lyric': lyric,
+                'filesize': filesize,
+                'ext': ext,
+                'duration': seconds2hms(duration)
+            }
+            if not songinfo['album']: songinfo['album'] = '-'
+            songinfos.append(songinfo)
+            if len(songinfos) == cfg['search_size_per_source']: break
+        return songinfos
+    '''计算sign值'''
+    def __calcSign(self, keyword):
+        secret = '0b50b02fd0d73a9c4c8c3a781c30845f'
+        e = {
+            'word': keyword,
+            'timestamp': str(int(time.time()))
+        }
+        n = list(e.keys())
+        n.sort()
+        i = f'{n[0]}={e[n[0]]}'
+        for r in range(1, len(n)):
+            o = n[r]
+            i += f'&{o}={e[o]}'
+        sign = hashlib.md5((i + secret).encode('utf-8')).hexdigest()
+        return sign
+    '''初始化'''
+    def __initialize(self):
+        self.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
+            'Referer': 'https://music.taihe.com/'
+        }
+        self.search_url = 'https://music.taihe.com/v1/search'
+        self.tracklink_url = 'https://music.taihe.com/v1/song/tracklink'

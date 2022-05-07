@@ -1,4 +1,0 @@
-TODO:
-
-- 崔庆才 《Python3 网络爬虫开发实战》
-    - <https://github.com/Python3WebSpider/Python3WebSpider>
