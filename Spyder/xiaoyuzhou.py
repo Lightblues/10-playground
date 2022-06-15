@@ -29,23 +29,13 @@ MongoDB: xiaoyuzhou
     episode_info
 """
 
-header_xiaoyuzhou = {
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-    # 'Accept-Encoding': 'gzip, deflate, br',
-    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7',
-    'Cache-Control': 'max-age=0',
-    'Connection': 'keep-alive',
-    # 'Cookie': '',
-    # 'Host': 'book.douban.com',
-    # 'Referer': 'https://book.douban.com/mine?status=collect',
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.96 Safari/',
-}
+from config.config import config_mongo, header_xiaoyuzhou
 
 class SpyderXiaoyuzhou(object):
     def __init__(self) -> None:
         """ 初始化数据库和 session """
         self.init_session(header_xiaoyuzhou)
-        self.db = MongoClient('mongodb://localhost:27017/').xiaoyuzhou
+        self.db = MongoClient(**config_mongo).xiaoyuzhou  # 'mongodb://IP:27017/'
         
     def init_session(self, header):
         session = HTMLSession()
@@ -155,4 +145,4 @@ spyder = SpyderXiaoyuzhou()
 spyder.init_logging("xiaoyuzhou")
 # spyder.get_single_episode(url = "https://www.xiaoyuzhoufm.com/episode/629b2adf525536dd0293626e")
 # spyder.download_episode(episode_id = "629b2adf525536dd0293626e")
-spyder.get_single_episode_and_download("https://www.xiaoyuzhoufm.com/episode/62a3739bb32f552f54730f2a")
+spyder.get_single_episode("https://www.xiaoyuzhoufm.com/episode/62a3739bb32f552f54730f2a")

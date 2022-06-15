@@ -1,0 +1,7 @@
+python-telegram-bot==20.0a1
+beautifulsoup4
+pymongo
+requests_html
+urllib3
+arxiv
+httpx[socks]

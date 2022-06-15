@@ -1,0 +1,6 @@
+[submodule "Automation/Telegram/python-telegram-bot"]
+	path = Automation/Telegram/python-telegram-bot
+	url = https://github.com/python-telegram-bot/python-telegram-bot/
+[submodule "Automation/cv-arxiv-daily"]
+	path = Automation/cv-arxiv-daily
+	url = https://github.com/Vincentqyw/cv-arxiv-daily.git

@@ -4,6 +4,10 @@
 
 ## Spyder
 
+基本框架: `requests_html` + `beautifulsoup4` + `pymongo`. 参见 `xiaoyuzhou.py`
+
+---
+
 - `douban_豆瓣` 豆瓣个人+书籍列表 @2204
     - 比较成熟的框架了, 对于反爬策略不太强的网络应该可以借鉴
 - `01-basic-framework` 基本的 requests+lxml 爬取框架
