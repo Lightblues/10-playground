@@ -24,6 +24,9 @@ Telegram: https://core.telegram.org/bots/api
 GitHub: https://docs.github.com/en/rest
 ArXiv: https://github.com/lukasschwab/arxiv.py
 
+---
+参见 [工具 | 使用 arXiv API + Github Actions 实现每天自动获取arXiv论文摘要](https://cloud.tencent.com/developer/article/1897625)
+
 """
 
 RE_LINK = re.compile(r'(https?://[^\s]+)')

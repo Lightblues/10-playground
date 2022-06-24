@@ -2,6 +2,11 @@
 
 记录一些日常代码
 
+## Automation
+
+- Telegram-linkbot
+    - 基于 Telegram Bot 的自动化链接整合方案.
+
 ## Spyder
 
 基本框架: `requests_html` + `beautifulsoup4` + `pymongo`. 参见 `xiaoyuzhou.py`
@@ -28,7 +33,3 @@
     - TF版本 MF ，完整的推荐系统
     - t-SNE 降维可视化
     - 构造数据、使用特征进行 Softmax 见 <https://developers.google.com/machine-learning/recommendation/dnn/softmax>
-
-## data
-
-数据目录
