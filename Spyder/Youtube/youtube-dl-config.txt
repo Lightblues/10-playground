@@ -1,0 +1,16 @@
+--output "${base_folder_video}${2}/${current_date}__%(uploader)s__%(title)s.%(ext)s"  # ~/Downloads/%(title)s_%(id)s.%(ext)s
+--download-archive ${base_folder_archive}download_arachive_${2}
+--ignore-errors
+--write-sub
+--format best
+
+--write-description		# 说明
+#--write-info-json		# 元数据
+--write-thumbnail		# 缩略图
+#--write-annotations		# 注释
+
+# --proxy socks5://127.0.0.1:1080
+# --external-downloader aria2c
+# --external-downloader-args '-c -x 16 -k 1M'
+# --continue		# Force resume of partially downloaded files. By default, youtube-dl will resume downloads if possible.
+# --batch-file playlist.txt
