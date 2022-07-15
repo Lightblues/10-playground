@@ -2,7 +2,7 @@ name: "Daily Fudan - new"
 
 on:
   schedule:
-    - cron: "0 22 * * *"  # scheduled at 06:00 (UTC+8) everyday
+    - cron: "0 6 * * *"  # scheduled at 06:00 (UTC+8) everyday
   workflow_dispatch:
 
 env:
@@ -14,7 +14,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # if: github.ref == 'refs/heads/master'
 
     steps:
       - name: Checkout master
@@ -22,7 +21,6 @@ jobs:
         with:
           fetch-depth: 0
           ref: master
-
       - name: Auto merge
         if: ${{ env.ALLOW_MERGE != 'false' }}
         run: |
@@ -36,13 +34,11 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
-
-      - name: Random sleep
-        if: github.event_name == 'schedule'
-        run: sleep $(shuf -i 10-300 -n 1)
-
+      # - name: Random sleep
+      #   if: github.event_name == 'schedule'
+      #   run: sleep $(shuf -i 10-300 -n 1)
       - name: Run sign
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          python3 ./dailyFudan.py '${{ secrets.FUDAN }}'
+          python3 ./checkin.py '${{ secrets.SUWA }}'

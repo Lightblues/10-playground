@@ -206,7 +206,7 @@ def get_account():
     return uid, psw
 
 if __name__ == '__main__':
-    # 随机等待
+    # 随机等待. 修改到 yml 中配置了.
     # a = random.randint(0, 600)
     # logging.info(f"Sleep {a} seconds...")
     # time.sleep(a)
