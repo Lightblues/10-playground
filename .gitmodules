@@ -4,3 +4,6 @@
 [submodule "Automation/cv-arxiv-daily"]
 	path = Automation/cv-arxiv-daily
 	url = https://github.com/Vincentqyw/cv-arxiv-daily.git
+[submodule "Automation/daily"]
+	path = Automation/daily
+	url = https://github.com/Lightblues/daily_fudan.git
